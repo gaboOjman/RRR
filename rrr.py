@@ -1,6 +1,3 @@
-origin_ip = '10.0.0.0'
-destination_ip = '10.179.255.255'
-
 def int_to_byte(num):
     byte = ""
     for i in range(7,-1,-1):
@@ -68,7 +65,10 @@ def segments(ip_init,ip_end):
         ip_init = ip_next_end
         Segments.append(Step)
     return Segments
-        
+
+origin_ip = input("Ingresá la ip de origen (ej: 10.48.0.0): ")
+destination_ip = input("Ingresá la ip de destino (ej: 10.179.255.255): ")      
     
-for s in segments(origin_ip,destination_ip):
-    print(s)
+for s in (seg:=segments(origin_ip,destination_ip)):
+    print(f"Segmento {seg.index(s)+1}: \n   IP origen: {'.'.join(map(str, s[0]))}\n   IP destino: {'.'.join(map(str, s[1]))}\n   Wildcard: {'.'.join(map(str, s[2]))}")
+
