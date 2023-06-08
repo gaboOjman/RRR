@@ -1,4 +1,4 @@
-origin_ip = '10.48.0.0'
+origin_ip = '10.0.0.0'
 destination_ip = '10.179.255.255'
 
 def int_to_byte(num):
@@ -11,6 +11,23 @@ def int_to_byte(num):
             byte += "0"
     return byte
 
+def dec_to_bin(dec):
+    bin = ""
+    for i in range(31,-1,-1):
+        if dec >= pow(2,i):
+            bin += "1"
+            dec -= pow(2,i)
+        else:
+            bin += "0"
+    return bin
+
+def bin_to_dec(bin):
+    dec = 0
+    for i in range(len(bin)):
+        if bin[i] == "1":
+            dec += pow(2,len(bin)-i-1)
+    return dec
+
 def ip_to_bin(ip):
     lst = ip.split('.')
     bin_ip = ""
@@ -18,27 +35,40 @@ def ip_to_bin(ip):
         bin_ip += int_to_byte(int(lst[i]))
     return bin_ip
 
-def wildcards(ip_init,ip_end):
+def bin_to_ip(bin):
+    ip = [bin_to_dec(bin[i:i+8]) for i in range(0,32,8)]
+    return ip
+
+
+def segments(ip_init,ip_end):
+    Segments = [] # [origin,dest,wildcard]
     ip_init = ip_to_bin(ip_init)
     ip_end = ip_to_bin(ip_end)
-    ceros_iniciales = 0
-    for i in range(32):
-        if ip_init[i] == ip_end[i]:
-            ceros_iniciales += 1
-        else:
+    ip_next_end = ip_init
+
+    while True:
+        Step = [bin_to_ip(ip_init),0,0]
+        for i in range(len(ip_init)):
+            check = list(ip_init)
+            check[len(ip_init)-i-1] = "1"
+            check = "".join(check)
+            
+            if bin_to_dec(check) > bin_to_dec(ip_end) or ip_init[len(ip_init)-i-1] == "1":
+                wc = "".join(["0" for o in range(32-i)]) + "".join(["1" for o in range(i)])
+                break
+            else:
+                ip_init = check
+
+        ip_next_end = dec_to_bin(bin_to_dec(ip_init) + 1)
+
+        Step[1] = bin_to_ip(ip_init)
+        Step[2] = bin_to_ip(wc)
+        if ip_init > ip_end:
             break
-    print(ip_init)
-    print(ip_to_bin("10.63.255.255"))
-    print(ip_to_bin("10.127.255.255"))
-    print(ip_to_bin("10.159.255.255"))
-    print(ip_to_bin("10.175.255.255"))
-    print(ip_end)
-    print(ceros_iniciales)
-
-#wildcards(origin_ip,destination_ip)
-
-print(ip_to_bin("10.0.0.0"))
-print(ip_to_bin("10.127.255.255"))
-print(ip_to_bin("10.159.255.255"))
-print(ip_to_bin("10.175.255.255"))
-print(ip_to_bin("10.179.255.255"))
+        ip_init = ip_next_end
+        Segments.append(Step)
+    return Segments
+        
+    
+for s in segments(origin_ip,destination_ip):
+    print(s)
