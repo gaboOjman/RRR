@@ -66,9 +66,38 @@ def segments(ip_init,ip_end):
         Segments.append(Step)
     return Segments
 
-origin_ip = input("Ingresá la ip de origen (ej: 10.48.0.0): ")
-destination_ip = input("Ingresá la ip de destino (ej: 10.179.255.255): ")      
-    
-for s in (seg:=segments(origin_ip,destination_ip)):
-    print(f"Segmento {seg.index(s)+1}: \n   IP origen: {'.'.join(map(str, s[0]))}\n   IP destino: {'.'.join(map(str, s[1]))}\n   Wildcard: {'.'.join(map(str, s[2]))}")
+def range_of_segment(IP,MS):
+    id_de_subred = ""
+    id_de_broadcast = ""
+    IP = ip_to_bin(IP)
+    for i in range(MS):
+        id_de_subred += IP[i]
+    id_de_broadcast = id_de_subred
+    for i in range(MS,32):
+        id_de_subred += "0"
+        id_de_broadcast += "1"
+    id_de_subred = bin_to_ip(id_de_subred)
+    id_de_broadcast = bin_to_ip(id_de_broadcast)
+    return [id_de_subred,id_de_broadcast]
 
+
+def func0():
+    origin_ip = input("Ingresá la ip de origen (ej: 10.48.0.0): ")
+    destination_ip = input("Ingresá la ip de destino (ej: 10.179.255.255): ")      
+    
+    for s in (seg:=segments(origin_ip,destination_ip)):
+        print(f"Segmento {seg.index(s)+1}: \n   IP origen: {'.'.join(map(str, s[0]))}\n   IP destino: {'.'.join(map(str, s[1]))}\n   Wildcard: {'.'.join(map(str, s[2]))}")
+
+def func1():
+    ip = input("Ingresá la ip con la MS (ej: 10.48.0.0/16): ")
+    ip = ip.split("/")
+    r = range_of_segment(ip[0],int(ip[1]))
+    print(f"Id de subred: {r[0]}\nId de broadcast: {r[1]}")
+
+
+func = input("Escribí:\n    - 0 para tener wildcards y segmentos\n    - 1 para tener segmento con IP y MS\n")
+match(int(func)):
+    case 0: 
+        func0()
+    case 1:
+        func1()
